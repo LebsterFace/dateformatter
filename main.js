@@ -12,12 +12,12 @@ const ordinal = n => n + {
 // FIXME: timezone & quarter
 const getterFunctions = {
 	// d		14			The day of the month. A single d will use 1 for January 1st.
-	'd': date => date.toLocaleString('en-US', { day: 'numeric' }),
+	"d": date => date.toLocaleString("en-US", { day: "numeric" }),
 	// dd		14			The day of the month. A double d will use 01 for January 1st.
-	'dd': date => date.toLocaleString('en-US', { day: '2-digit' }),
-	'ddd': date => ordinal(date.toLocaleString('en-US', { day: 'numeric' })),
+	"dd": date => date.toLocaleString("en-US", { day: "2-digit" }),
+	"ddd": date => ordinal(date.toLocaleString("en-US", { day: "numeric" })),
 	// F		2			(numeric) The day of week in the month.
-	'F': orig => {
+	"F": orig => {
 		const date = new Date(orig.valueOf());
 		const day = date.getDay();
 
@@ -31,56 +31,56 @@ const getterFunctions = {
 		return count;
 	},
 	// E		Tue			The abbreviation for the day of the week
-	'E': date => date.toLocaleString('en-US', { weekday: 'short' }),
+	"E": date => date.toLocaleString("en-US", { weekday: "short" }),
 	// EEEE		Tuesday		The wide name of the day of the week
-	'EEEE': date => date.toLocaleString('en-US', { weekday: 'long' }),
+	"EEEE": date => date.toLocaleString("en-US", { weekday: "long" }),
 	// EEEEE	T			The narrow day of week
-	'EEEEE': date => date.toLocaleString('en-US', { weekday: 'narrow' }),
+	"EEEEE": date => date.toLocaleString("en-US", { weekday: "narrow" }),
 	// EEEEEE	Tu			The short day of week
-	'EEEEEE': date => "(EEEEEE is not implemented)",
+	"EEEEEE": date => "(EEEEEE is not implemented)",
 
 	// y	2008		Year, no padding
-	'y': date => date.getFullYear(),
+	"y": date => date.getFullYear(),
 	// yy	08			Year, two digits (padding with a zero if necessary)
-	'yy': date => date.toLocaleString("en-US", { year: "2-digit" }),
+	"yy": date => date.toLocaleString("en-US", { year: "2-digit" }),
 	// yyyy	2008		Year, minimum of four digits (padding with zeros if necessary)
-	'yyyy': date => date.toLocaleString("en-US", { year: "numeric" }).padStart(4, "0"),
+	"yyyy": date => date.toLocaleString("en-US", { year: "numeric" }).padStart(4, "0"),
 
-	// M		12			The numeric month of the year. A single M will use '1' for January.
-	'M': date => date.toLocaleString('en-US', { month: 'numeric' }),
-	// MM		12			The numeric month of the year. A double M will use '01' for January.
-	'MM': date => date.toLocaleString('en-US', { month: '2-digit' }),
+	// M		12			The numeric month of the year. A single M will use "1" for January.
+	"M": date => date.toLocaleString("en-US", { month: "numeric" }),
+	// MM		12			The numeric month of the year. A double M will use "01" for January.
+	"MM": date => date.toLocaleString("en-US", { month: "2-digit" }),
 	// MMM		Dec			The shorthand name of the month
-	'MMM': date => date.toLocaleString('en-US', { month: 'short' }),
+	"MMM": date => date.toLocaleString("en-US", { month: "short" }),
 	// MMMM		December	Full name of the month
-	'MMMM': date => date.toLocaleString('en-US', { month: 'long' }),
+	"MMMM": date => date.toLocaleString("en-US", { month: "long" }),
 	// MMMMM	D			Narrow name of the month
-	'MMMMM': date => date.toLocaleString('en-US', { month: 'narrow' }),
+	"MMMMM": date => date.toLocaleString("en-US", { month: "narrow" }),
 
 	// h		4		The 12-hour hour.
-	'h': date => date.toLocaleString('en-US', { hour12: true, hour: "numeric" }).slice(0, -3),
+	"h": date => date.toLocaleString("en-US", { hour12: true, hour: "numeric" }).slice(0, -3),
 	// hh		04		The 12-hour hour padding with a zero if there is only 1 digit
-	'hh': date => date.toLocaleString('en-US', { hour12: true, hour: "2-digit" }).slice(0, -3),
+	"hh": date => date.toLocaleString("en-US", { hour12: true, hour: "2-digit" }).slice(0, -3),
 	// H		16		The 24-hour hour.
-	'H': date => date.toLocaleString('en-US', { hour12: false, hour: "numeric" }),
+	"H": date => date.toLocaleString("en-US", { hour12: false, hour: "numeric" }),
 	// HH		16		The 24-hour hour padding with a zero if there is only 1 digit.
-	'HH': date => date.toLocaleString('en-US', { hour12: false, hour: "2-digit" }),
+	"HH": date => date.toLocaleString("en-US", { hour12: false, hour: "2-digit" }),
 	// a		PM		AM / PM for 12-hour time formats
-	'a': date => date.toLocaleString('en-US', { hour12: true, hour: "2-digit" }).slice(3),
+	"a": date => date.toLocaleString("en-US", { hour12: true, hour: "2-digit" }).slice(3),
 
 	// m		35		The minute, with no padding for zeroes.
-	'm': date => date.getMinutes(),
+	"m": date => date.getMinutes(),
 	// mm		35		The minute with zero padding.
-	'mm': date => date.getMinutes().toString().padStart(2, "0"),
+	"mm": date => date.getMinutes().toString().padStart(2, "0"),
 
 	// s		8		The seconds, with no padding for zeroes.
-	's': date => date.getSeconds(),
+	"s": date => date.getSeconds(),
 
 	// ss		08		The seconds with zero padding.
-	'ss': date => date.getSeconds().toString().padStart(2, "0"),
+	"ss": date => date.getSeconds().toString().padStart(2, "0"),
 
 	// SSS		123		The milliseconds.
-	'SSS': date => date.getMilliseconds(),
+	"SSS": date => date.getMilliseconds(),
 };
 
 const orderedFunctions = Object.keys(getterFunctions).sort((a, b) => b.length - a.length);
@@ -121,10 +121,10 @@ const generateCode = (date, format) => {
 
 	return [
 		`// Formats a date in the format: ${format}`,
-		'const formatDate = date => {',
+		"const formatDate = date => {",
 		...functions.map(f => "\t" + f),
 		`\treturn \`${strings.map(({ isLiteral, data }) =>
-			isLiteral ? data : ('${' + data + '}')
+			isLiteral ? data : ("${" + data + "}")
 		).join("")
 			.replaceAll("\\", "\\\\")
 			.replaceAll("`", "\\`")}\`;`,
@@ -132,7 +132,7 @@ const generateCode = (date, format) => {
 	].join("\n");
 };
 
-ace.config.setModuleUrl('ace/mode/javascript', require('file-loader!./mode-javascript.js'));
+ace.config.setModuleUrl("ace/mode/javascript", require("file-loader!./mode-javascript.js"));
 
 const editor = ace.edit("editor", {
 	theme: "ace/theme/dracula",
@@ -141,15 +141,14 @@ const editor = ace.edit("editor", {
 	fontFamily: "JetBrains Mono, Inconsolata, Fira Code, monospace",
 	readOnly: true,
 	useWorker: false,
-	showPrintMargin: false,
-	value: "console.log('Hello World!');"
+	showPrintMargin: false
 });
 
-editor.renderer.setScrollMargin(10, 10);
+editor.renderer.setScrollMargin(5);
 
 dateFormatInput.addEventListener("input", () => {
 	const format = dateFormatInput.value;
 	const date = new Date();
-	resultElement.textContent = formatDate(date, format) || '&nsbp;';
+	resultElement.textContent = formatDate(date, format);
 	editor.setValue(generateCode(date, format), 1);
 });

@@ -12,6 +12,11 @@ input {
 
 h1 {
 	font-size: 100px;
+	white-space: pre;
+}
+
+h1:empty::after {
+	content: "​";	
 }
 
 input {
