@@ -158,13 +158,11 @@ const generateCode = (format) => {
 	].join("\n");
 };
 
-ace.config.setModuleUrl("ace/mode/javascript", require("file-loader!./mode-javascript.js"));
-
 const editor = ace.edit("editor", {
 	theme: "ace/theme/dracula",
 	mode: "ace/mode/javascript",
 	fontSize: "1rem",
-	fontFamily: "JetBrains Mono, Inconsolata, Fira Code, monospace",
+	fontFamily: "var(--code-font)",
 	readOnly: true,
 	useWorker: false,
 	showPrintMargin: false
