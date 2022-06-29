@@ -1,26 +1,20 @@
 const resultElement = document.getElementById("result");
 const dateFormatInput = document.getElementById("dateformat");
 
-let locale = "en-US";
-
-const ordinal = n => n + {
-	one: "st",
-	two: "nd",
-	few: "rd",
-	other: "th"
-}[new Intl.PluralRules(locale, { type: "ordinal" }).select(n)];
-
 // FIXME: timezone & quarter
 const getterFunctions = {
-	// d		14			The day of the month. A single d will use 1 for January 1st.
-	"d": date => date.toLocaleString(locale, { day: "numeric" }),
-	"D": date => date.toLocaleString(locale, { day: "numeric" }),
-	// dd		14			The day of the month. A double d will use 01 for January 1st.
-	"dd": date => date.toLocaleString(locale, { day: "2-digit" }),
-	"DD": date => date.toLocaleString(locale, { day: "2-digit" }),
-	"ddd": date => ordinal(date.toLocaleString(locale, { day: "numeric" })),
-	"DDD": date => ordinal(date.toLocaleString(locale, { day: "numeric" })),
-	// F		2			(numeric) The day of week in the month.
+	"d": date => date.toLocaleString("en", { day: "numeric" }),
+	"dd": date => date.toLocaleString("en", { day: "2-digit" }),
+
+
+	"ddd": date => date.toLocaleString("en", { day: "numeric" }) + {
+		one: "st",
+		two: "nd",
+		few: "rd",
+		other: "th"
+	}[new Intl.PluralRules("en", { type: "ordinal" }).select(date.toLocaleString("en", { day: "numeric" }))],
+
+	// FIXME: this one doesn't work
 	"F": orig => {
 		const date = new Date(orig.valueOf());
 		const day = date.getDay();
@@ -34,63 +28,37 @@ const getterFunctions = {
 		if (date.getDay() === day) count++;
 		return count;
 	},
-	// E		Tue			The abbreviation for the day of the week
-	"E": date => date.toLocaleString(locale, { weekday: "short" }),
-	// EEEE		Tuesday		The wide name of the day of the week
-	"EEEE": date => date.toLocaleString(locale, { weekday: "long" }),
-	"EEE": date => date.toLocaleString(locale, { weekday: "long" }),
-	"EE": date => date.toLocaleString(locale, { weekday: "long" }),
-	// EEEEE	T			The narrow day of week
-	"EEEEE": date => date.toLocaleString(locale, { weekday: "narrow" }),
-	// EEEEEE	Tu			The short day of week
-	"EEEEEE": date => date.toLocaleString(locale, { weekday: "long" }).slice(0, 2),
+	
+	"E": date => date.toLocaleString("en", { weekday: "short" }),
+	"EEEE": date => date.toLocaleString("en", { weekday: "long" }),
+	"EEE": date => date.toLocaleString("en", { weekday: "long" }),
+	"EE": date => date.toLocaleString("en", { weekday: "long" }),
+	"EEEEE": date => date.toLocaleString("en", { weekday: "narrow" }),
+	"EEEEEE": date => date.toLocaleString("en", { weekday: "long" }).slice(0, 2),
 
-	// y	2008		Year, no padding
 	"y": date => date.getFullYear(),
-	"Y": date => date.getFullYear(),
-	// yy	08			Year, two digits (padding with a zero if necessary)
-	"yy": date => date.toLocaleString(locale, { year: "2-digit" }),
-	"YY": date => date.toLocaleString(locale, { year: "2-digit" }),
-	// yyyy	2008		Year, minimum of four digits (padding with zeros if necessary)
-	"yyyy": date => date.toLocaleString(locale, { year: "numeric" }).padStart(4, "0"),
-	"YYYY": date => date.toLocaleString(locale, { year: "numeric" }).padStart(4, "0"),
-	"yyy": date => date.toLocaleString(locale, { year: "numeric" }).padStart(4, "0"),
-	"YYY": date => date.toLocaleString(locale, { year: "numeric" }).padStart(4, "0"),
+	"yy": date => date.toLocaleString("en", { year: "2-digit" }),
+	"yyyy": date => date.toLocaleString("en", { year: "numeric" }).padStart(4, "0"),
 
-	// M		12			The numeric month of the year. A single M will use "1" for January.
-	"M": date => date.toLocaleString(locale, { month: "numeric" }),
-	// MM		12			The numeric month of the year. A double M will use "01" for January.
-	"MM": date => date.toLocaleString(locale, { month: "2-digit" }),
-	// MMM		Dec			The shorthand name of the month
-	"MMM": date => date.toLocaleString(locale, { month: "short" }),
-	// MMMM		December	Full name of the month
-	"MMMM": date => date.toLocaleString(locale, { month: "long" }),
-	// MMMMM	D			Narrow name of the month
-	"MMMMM": date => date.toLocaleString(locale, { month: "narrow" }),
+	"M": date => date.toLocaleString("en", { month: "numeric" }),
+	"MM": date => date.toLocaleString("en", { month: "2-digit" }),
+	"MMM": date => date.toLocaleString("en", { month: "short" }),
+	"MMMM": date => date.toLocaleString("en", { month: "long" }),
+	"MMMMM": date => date.toLocaleString("en", { month: "narrow" }),
 
-	// h		4		The 12-hour hour.
-	"h": date => date.toLocaleString(locale, { hour12: true, hour: "numeric" }).slice(0, -3),
-	// hh		04		The 12-hour hour padding with a zero if there is only 1 digit
-	"hh": date => date.toLocaleString(locale, { hour12: true, hour: "2-digit" }).slice(0, -3),
-	// H		16		The 24-hour hour.
-	"H": date => date.toLocaleString(locale, { hour12: false, hour: "numeric" }),
-	// HH		16		The 24-hour hour padding with a zero if there is only 1 digit.
-	"HH": date => date.toLocaleString(locale, { hour12: false, hour: "2-digit" }),
-	// a		PM		AM / PM for 12-hour time formats
+	"h": date => date.toLocaleString("en", { hour12: true, hour: "numeric" }).slice(0, -3),
+	"hh": date => date.toLocaleString("en", { hour12: true, hour: "2-digit" }).slice(0, -3),
+
+	"H": date => date.toLocaleString("en", { hour12: false, hour: "numeric" }),
+	"HH": date => date.toLocaleString("en", { hour12: false, hour: "2-digit" }),
+
 	"a": date => date.getHours() < 12 ? "AM" : "PM",
 
-	// m		35		The minute, with no padding for zeroes.
 	"m": date => date.getMinutes(),
-	// mm		35		The minute with zero padding.
 	"mm": date => date.getMinutes().toString().padStart(2, "0"),
 
-	// s		8		The seconds, with no padding for zeroes.
 	"s": date => date.getSeconds(),
-
-	// ss		08		The seconds with zero padding.
 	"ss": date => date.getSeconds().toString().padStart(2, "0"),
-
-	// SSS		123		The milliseconds.
 	"SSS": date => date.getMilliseconds(),
 };
 
@@ -105,12 +73,7 @@ const parse = input => {
 		const character = characters[i];
 		if (character === "\\") {
 			const next = characters[++i];
-			if (!next) {
-				// Special case
-				result.at(-1).data += "\\";
-				break;
-			}
-
+			if (!next) break;
 			result.push({ data: next, escaped: true });
 		} else if (result.at(-1).escaped) {
 			result.push({ data: character });
