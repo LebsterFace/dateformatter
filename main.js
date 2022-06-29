@@ -3,49 +3,54 @@ const dateFormatInput = document.getElementById("dateformat");
 
 // FIXME: timezone & quarter
 const getterFunctions = {
-	"d": date => date.getDate(),
-	"dd": date => date.toLocaleString("en", { day: "2-digit" }),
+	d: date => date.getDate(),
+	dd: date => date.toLocaleString("en", { day: "2-digit" }),
+	ddd: date => (n => n + ([, 'st', 'nd', 'rd'][n / 10 % 10 ^ 1 && n % 10] || 'th'))(date.getDate()),
 
+	F: date => Math.ceil(date.getDate() / 7),
 
-	"ddd": date => {
-		return (n => n + ([, 'st', 'nd', 'rd'][n / 10 % 10 ^ 1 && n % 10] || 'th'))(date.getDate());
-	},
+	E: date => date.toLocaleString("en", { weekday: "short" }),
+	EEEE: date => date.toLocaleString("en", { weekday: "long" }),
+	EEEEE: date => date.toLocaleString("en", { weekday: "narrow" }),
+	EEEEEE: date => date.toLocaleString("en", { weekday: "long" }).slice(0, 2),
 
-	"F": date => Math.ceil(date.getDate() / 7),
+	y: date => date.getFullYear(),
+	yy: date => date.toLocaleString("en", { year: "2-digit" }),
+	yyyy: date => date.toLocaleString("en", { year: "numeric" }).padStart(4, "0"),
 
-	"E": date => date.toLocaleString("en", { weekday: "short" }),
-	"EEEE": date => date.toLocaleString("en", { weekday: "long" }),
-	"EEE": date => date.toLocaleString("en", { weekday: "long" }),
-	"EE": date => date.toLocaleString("en", { weekday: "long" }),
-	"EEEEE": date => date.toLocaleString("en", { weekday: "narrow" }),
-	"EEEEEE": date => date.toLocaleString("en", { weekday: "long" }).slice(0, 2),
+	M: date => date.toLocaleString("en", { month: "numeric" }),
+	MM: date => date.toLocaleString("en", { month: "2-digit" }),
+	MMM: date => date.toLocaleString("en", { month: "short" }),
+	MMMM: date => date.toLocaleString("en", { month: "long" }),
+	MMMMM: date => date.toLocaleString("en", { month: "narrow" }),
 
-	"y": date => date.getFullYear(),
-	"yy": date => date.toLocaleString("en", { year: "2-digit" }),
-	"yyyy": date => date.toLocaleString("en", { year: "numeric" }).padStart(4, "0"),
+	h: date => date.toLocaleString("en", { hour12: true, hour: "numeric" }).slice(0, -3),
+	hh: date => date.toLocaleString("en", { hour12: true, hour: "2-digit" }).slice(0, -3),
 
-	"M": date => date.toLocaleString("en", { month: "numeric" }),
-	"MM": date => date.toLocaleString("en", { month: "2-digit" }),
-	"MMM": date => date.toLocaleString("en", { month: "short" }),
-	"MMMM": date => date.toLocaleString("en", { month: "long" }),
-	"MMMMM": date => date.toLocaleString("en", { month: "narrow" }),
+	H: date => date.toLocaleString("en", { hour12: false, hour: "numeric" }),
+	HH: date => date.toLocaleString("en", { hour12: false, hour: "2-digit" }),
 
-	"h": date => date.toLocaleString("en", { hour12: true, hour: "numeric" }).slice(0, -3),
-	"hh": date => date.toLocaleString("en", { hour12: true, hour: "2-digit" }).slice(0, -3),
+	a: date => date.getHours() < 12 ? "am" : "pm",
+	A: date => date.getHours() < 12 ? "AM" : "PM",
 
-	"H": date => date.toLocaleString("en", { hour12: false, hour: "numeric" }),
-	"HH": date => date.toLocaleString("en", { hour12: false, hour: "2-digit" }),
+	m: date => date.getMinutes(),
+	mm: date => date.getMinutes().toString().padStart(2, "0"),
 
-	"a": date => date.getHours() < 12 ? "am" : "pm",
-	"A": date => date.getHours() < 12 ? "AM" : "PM",
-
-	"m": date => date.getMinutes(),
-	"mm": date => date.getMinutes().toString().padStart(2, "0"),
-
-	"s": date => date.getSeconds(),
-	"ss": date => date.getSeconds().toString().padStart(2, "0"),
-	"SSS": date => date.getMilliseconds(),
+	s: date => date.getSeconds(),
+	ss: date => date.getSeconds().toString().padStart(2, "0"),
+	SSS: date => date.getMilliseconds(),
 };
+
+getterFunctions.EE = getterFunctions.E;
+getterFunctions.EEE = getterFunctions.E;
+
+getterFunctions.yyy = getterFunctions.y;
+
+for (const func of ["d", "dd", "ddd", "E", "EE", "EEE", "EEEE", "EEEEE", "EEEEEE", "y", "yy", "yyy", "yyyy"]) {
+	const original = getterFunctions[func.toLowerCase()] ?? getterFunctions[func.toUpperCase()];
+	getterFunctions[func.toLowerCase()] = original;
+	getterFunctions[func.toUpperCase()] = original;
+}
 
 const getPartCode = part => {
 	const string = getterFunctions[part].toString();
