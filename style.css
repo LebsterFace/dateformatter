@@ -1,0 +1,26 @@
+/* basic css for testing */
+html,
+body,
+input {
+	font-family: sans-serif;
+	color: white;
+	background-color: #111;
+	font-size: 20px;
+	padding: 10px;
+	box-sizing: border-box;
+}
+
+h1 {
+	font-size: 100px;
+}
+
+input {
+	width: 100%;
+}
+
+#editor {
+	margin-top: 2rem;
+	width: 100%;
+	height: 40vh;
+	border-radius: 10px;
+}
