@@ -3,32 +3,16 @@ const dateFormatInput = document.getElementById("dateformat");
 
 // FIXME: timezone & quarter
 const getterFunctions = {
-	"d": date => date.toLocaleString("en", { day: "numeric" }),
+	"d": date => date.getDate(),
 	"dd": date => date.toLocaleString("en", { day: "2-digit" }),
 
 
-	"ddd": date => date.toLocaleString("en", { day: "numeric" }) + {
-		one: "st",
-		two: "nd",
-		few: "rd",
-		other: "th"
-	}[new Intl.PluralRules("en", { type: "ordinal" }).select(date.toLocaleString("en", { day: "numeric" }))],
-
-	// FIXME: this one doesn't work
-	"F": orig => {
-		const date = new Date(orig.valueOf());
-		const day = date.getDay();
-
-		let count = 0;
-		while (date.getDate() > 1) {
-			if (date.getDay() === day) count++;
-			date.setDate(date.getDate() - 1);
-		}
-
-		if (date.getDay() === day) count++;
-		return count;
+	"ddd": date => {
+		return (n => n + ([, 'st', 'nd', 'rd'][n / 10 % 10 ^ 1 && n % 10] || 'th'))(date.getDate());
 	},
-	
+
+	"F": date => Math.ceil(date.getDate() / 7),
+
 	"E": date => date.toLocaleString("en", { weekday: "short" }),
 	"EEEE": date => date.toLocaleString("en", { weekday: "long" }),
 	"EEE": date => date.toLocaleString("en", { weekday: "long" }),
@@ -52,7 +36,8 @@ const getterFunctions = {
 	"H": date => date.toLocaleString("en", { hour12: false, hour: "numeric" }),
 	"HH": date => date.toLocaleString("en", { hour12: false, hour: "2-digit" }),
 
-	"a": date => date.getHours() < 12 ? "AM" : "PM",
+	"a": date => date.getHours() < 12 ? "am" : "pm",
+	"A": date => date.getHours() < 12 ? "AM" : "PM",
 
 	"m": date => date.getMinutes(),
 	"mm": date => date.getMinutes().toString().padStart(2, "0"),
@@ -60,6 +45,27 @@ const getterFunctions = {
 	"s": date => date.getSeconds(),
 	"ss": date => date.getSeconds().toString().padStart(2, "0"),
 	"SSS": date => date.getMilliseconds(),
+};
+
+const getPartCode = part => {
+	const string = getterFunctions[part].toString();
+
+	if (string.startsWith("date => {")) {
+		return string
+			.replaceAll("\r\n", "\n")
+			.slice("date => {".length, -1)
+			.split("\n")
+			.map(line => line
+				.replace(/^\t/, "")
+				.replace(/return /, `const ${part} = `))
+			.filter(line => line.length > 0)
+			.join("\n");
+	} else if (string.startsWith("date => ")) {
+		// \t for indent
+		return `\tconst ${part} = ${string.slice("date => ".length)};`;
+	} else {
+		throw new Error("Unexpected getter function body");
+	}
 };
 
 const orderedFunctions = Object.keys(getterFunctions).sort((a, b) => b.length - a.length);
@@ -85,7 +91,7 @@ const parse = input => {
 	return result;
 };
 
-const formatDate = (date, format) => parse(format)
+const getPreview = (date, format) => parse(format)
 	.map(({ data, escaped }) =>
 		escaped ? data : data.replace(functionRegexp, func => getterFunctions[func](date))
 	).join("");
@@ -116,8 +122,7 @@ const generateCode = (format) => {
 			if (part in getterFunctions) {
 				const alreadyDeclared = strings.some(s => !s.literal && s.data === part);
 				if (!alreadyDeclared) {
-					// \t for indent
-					functions.push(`\tconst ${part} = ${getterFunctions[part].toString().slice("date => ".length)};`);
+					functions.push(getPartCode(part));
 				}
 
 				strings.push({ data: part, literal: false });
@@ -133,8 +138,14 @@ const generateCode = (format) => {
 		.replaceAll("\\", "\\\\")
 		.replaceAll("`", "\\`");
 
+	const commentFormat = strings.map(s => s.data).join("");
+
 	return [
-		`// Formats a date in the format: ${strings.map(s => s.data).join("")}`,
+		"/**",
+		" * Formats a date as: `" + commentFormat + "`",
+		" * @param {Date} date",
+		" * @returns {string}",
+		" */",
 		"const formatDate = date => {",
 		...functions,
 		'\treturn `' + returnValue + '`;',
@@ -159,7 +170,7 @@ editor.renderer.setScrollMargin(5);
 const update = () => {
 	const format = dateFormatInput.value;
 	const date = new Date();
-	resultElement.textContent = formatDate(date, format);
+	resultElement.textContent = getPreview(date, format);
 	editor.setValue(generateCode(format), 1);
 };
 
