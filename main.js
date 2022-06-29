@@ -1,13 +1,12 @@
 const resultElement = document.getElementById("result");
 const dateFormatInput = document.getElementById("dateformat");
-const codeElement = document.getElementById("code");
 
 const ordinal = n => n + {
 	one: "st",
 	two: "nd",
 	few: "rd",
 	other: "th"
-}[new Intl.PluralRules("en", { type: "ordinal" }).select(n)];
+}[new Intl.PluralRules("en-US", { type: "ordinal" }).select(n)];
 
 // FIXME: timezone & quarter
 const getterFunctions = {
@@ -37,7 +36,7 @@ const getterFunctions = {
 	// EEEEE	T			The narrow day of week
 	"EEEEE": date => date.toLocaleString("en-US", { weekday: "narrow" }),
 	// EEEEEE	Tu			The short day of week
-	"EEEEEE": date => "(EEEEEE is not implemented)",
+	"EEEEEE": date => date.toLocaleString("en-US", { weekday: "long" }).slice(0, 2),
 
 	// y	2008		Year, no padding
 	"y": date => date.getFullYear(),
@@ -45,6 +44,7 @@ const getterFunctions = {
 	"yy": date => date.toLocaleString("en-US", { year: "2-digit" }),
 	// yyyy	2008		Year, minimum of four digits (padding with zeros if necessary)
 	"yyyy": date => date.toLocaleString("en-US", { year: "numeric" }).padStart(4, "0"),
+	"yyy": date => date.toLocaleString("en-US", { year: "numeric" }).padStart(4, "0"),
 
 	// M		12			The numeric month of the year. A single M will use "1" for January.
 	"M": date => date.toLocaleString("en-US", { month: "numeric" }),
@@ -66,7 +66,7 @@ const getterFunctions = {
 	// HH		16		The 24-hour hour padding with a zero if there is only 1 digit.
 	"HH": date => date.toLocaleString("en-US", { hour12: false, hour: "2-digit" }),
 	// a		PM		AM / PM for 12-hour time formats
-	"a": date => date.toLocaleString("en-US", { hour12: true, hour: "2-digit" }).slice(3),
+	"a": date => date.getHours() < 12 ? "AM" : "PM",
 
 	// m		35		The minute, with no padding for zeroes.
 	"m": date => date.getMinutes(),
@@ -84,50 +84,92 @@ const getterFunctions = {
 };
 
 const orderedFunctions = Object.keys(getterFunctions).sort((a, b) => b.length - a.length);
-const functionRegexp = new RegExp(`\\b(${orderedFunctions.join("|")})\\b|.*`, "g");
+const functionRegexp = new RegExp("(" + orderedFunctions.join("|") + ")", "g");
 
-const formatDate = (date, format) => format
-	.split(/\b/)
-	.flatMap(word => word.match(functionRegexp))
-	.map(part => part in getterFunctions ? getterFunctions[part](date) : part)
-	.join("");
+const parse = input => {
+	const result = [{ data: "" }];
+	const characters = [...input];
 
-const generateCode = (date, format) => {
-	const parts = format.split(/\b/)
-		.flatMap(word => word.match(functionRegexp))
-		.filter(part => part.length > 0);
+	for (let i = 0; i < characters.length; i++) {
+		const character = characters[i];
+		if (character === "\\") {
+			const next = characters[++i];
+			if (!next) {
+				// Special case
+				result.at(-1).data += "\\";
+				break;
+			}
+
+			result.push({ data: next, escaped: true });
+		} else if (result.at(-1).escaped) {
+			result.push({ data: character });
+		} else {
+			result.at(-1).data += character;
+		}
+	}
+
+	return result;
+};
+
+const formatDate = (date, format) => parse(format)
+	.map(({ data, escaped }) =>
+		escaped ? data : data.replace(functionRegexp, func => getterFunctions[func](date))
+	).join("");
+
+const generateCode = (format) => {
+	const parts = parse(format)
+		.map(o => o.escaped ? o : { data: o.data.split(functionRegexp) });
 
 	const functions = [];
 	const strings = [];
 
-	for (const part of parts) {
-		const func = getterFunctions[part];
-		if (func) {
-			if (!strings.some(e => !e.isLiteral && e.data === part)) {
-				functions.push(`const ${part} = ${func.toString().slice("date => ".length)};`);
-			}
-
-			strings.push({ data: part, isLiteral: false });
+	const pushLiteral = data => {
+		const last = strings.at(-1);
+		if (last?.literal) {
+			last.data += data;
 		} else {
-			if (strings.at(-1)?.isLiteral) {
-				strings.push({ data: strings.pop().data + part, isLiteral: true });
-			} else {
-				strings.push({ data: part, isLiteral: true });
-			}
-
+			strings.push({ data, literal: true });
 		}
 	};
 
+	for (const { data, escaped } of parts) {
+		if (escaped) {
+			pushLiteral(data);
+			continue;
+		}
+
+		for (const part of data) {
+			if (part in getterFunctions) {
+				const alreadyDeclared = strings.some(s => !s.literal && s.data === part);
+				if (!alreadyDeclared) {
+					// \t for indent
+					functions.push(`\tconst ${part} = ${getterFunctions[part].toString().slice("date => ".length)};`);
+				}
+
+				strings.push({ data: part, literal: false });
+			} else {
+				pushLiteral(part);
+			}
+		}
+	}
+
+	const returnValue = strings
+		.map(({ literal, data }) => literal ? data : ("${" + data + "}"))
+		.join("")
+		.replaceAll("\\", "\\\\")
+		.replaceAll("`", "\\`");
+
+	const commentValue = strings
+		.map(({ literal, data }) => literal ? data : `{${data}}`)
+		.join("")
+		.replaceAll("\\", "\\\\")
+		.replaceAll("`", "\\`");
 
 	return [
-		`// Formats a date in the format: ${format}`,
+		`// Formats a date in the format: ${commentValue}`,
 		"const formatDate = date => {",
-		...functions.map(f => "\t" + f),
-		`\treturn \`${strings.map(({ isLiteral, data }) =>
-			isLiteral ? data : ("${" + data + "}")
-		).join("")
-			.replaceAll("\\", "\\\\")
-			.replaceAll("`", "\\`")}\`;`,
+			...functions,
+			'\treturn `' + returnValue + '`;',
 		"};"
 	].join("\n");
 };
@@ -150,5 +192,5 @@ dateFormatInput.addEventListener("input", () => {
 	const format = dateFormatInput.value;
 	const date = new Date();
 	resultElement.textContent = formatDate(date, format);
-	editor.setValue(generateCode(date, format), 1);
+	editor.setValue(generateCode(format), 1);
 });
