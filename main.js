@@ -14,9 +14,12 @@ const ordinal = n => n + {
 const getterFunctions = {
 	// d		14			The day of the month. A single d will use 1 for January 1st.
 	"d": date => date.toLocaleString(locale, { day: "numeric" }),
+	"D": date => date.toLocaleString(locale, { day: "numeric" }),
 	// dd		14			The day of the month. A double d will use 01 for January 1st.
 	"dd": date => date.toLocaleString(locale, { day: "2-digit" }),
+	"DD": date => date.toLocaleString(locale, { day: "2-digit" }),
 	"ddd": date => ordinal(date.toLocaleString(locale, { day: "numeric" })),
+	"DDD": date => ordinal(date.toLocaleString(locale, { day: "numeric" })),
 	// F		2			(numeric) The day of week in the month.
 	"F": orig => {
 		const date = new Date(orig.valueOf());
@@ -35,6 +38,8 @@ const getterFunctions = {
 	"E": date => date.toLocaleString(locale, { weekday: "short" }),
 	// EEEE		Tuesday		The wide name of the day of the week
 	"EEEE": date => date.toLocaleString(locale, { weekday: "long" }),
+	"EEE": date => date.toLocaleString(locale, { weekday: "long" }),
+	"EE": date => date.toLocaleString(locale, { weekday: "long" }),
 	// EEEEE	T			The narrow day of week
 	"EEEEE": date => date.toLocaleString(locale, { weekday: "narrow" }),
 	// EEEEEE	Tu			The short day of week
@@ -42,11 +47,15 @@ const getterFunctions = {
 
 	// y	2008		Year, no padding
 	"y": date => date.getFullYear(),
+	"Y": date => date.getFullYear(),
 	// yy	08			Year, two digits (padding with a zero if necessary)
 	"yy": date => date.toLocaleString(locale, { year: "2-digit" }),
+	"YY": date => date.toLocaleString(locale, { year: "2-digit" }),
 	// yyyy	2008		Year, minimum of four digits (padding with zeros if necessary)
 	"yyyy": date => date.toLocaleString(locale, { year: "numeric" }).padStart(4, "0"),
+	"YYYY": date => date.toLocaleString(locale, { year: "numeric" }).padStart(4, "0"),
 	"yyy": date => date.toLocaleString(locale, { year: "numeric" }).padStart(4, "0"),
+	"YYY": date => date.toLocaleString(locale, { year: "numeric" }).padStart(4, "0"),
 
 	// M		12			The numeric month of the year. A single M will use "1" for January.
 	"M": date => date.toLocaleString(locale, { month: "numeric" }),
@@ -161,17 +170,11 @@ const generateCode = (format) => {
 		.replaceAll("\\", "\\\\")
 		.replaceAll("`", "\\`");
 
-	const commentValue = strings
-		.map(({ literal, data }) => literal ? data : `{${data}}`)
-		.join("")
-		.replaceAll("\\", "\\\\")
-		.replaceAll("`", "\\`");
-
 	return [
-		`// Formats a date in the format: ${commentValue}`,
+		`// Formats a date in the format: ${strings.map(s => s.data).join("")}`,
 		"const formatDate = date => {",
-			...functions,
-			'\treturn `' + returnValue + '`;',
+		...functions,
+		'\treturn `' + returnValue + '`;',
 		"};"
 	].join("\n");
 };
@@ -181,7 +184,7 @@ ace.config.setModuleUrl("ace/mode/javascript", require("file-loader!./mode-javas
 const editor = ace.edit("editor", {
 	theme: "ace/theme/dracula",
 	mode: "ace/mode/javascript",
-	fontSize: "18px",
+	fontSize: "1rem",
 	fontFamily: "JetBrains Mono, Inconsolata, Fira Code, monospace",
 	readOnly: true,
 	useWorker: false,
@@ -190,9 +193,12 @@ const editor = ace.edit("editor", {
 
 editor.renderer.setScrollMargin(5);
 
-dateFormatInput.addEventListener("input", () => {
+const update = () => {
 	const format = dateFormatInput.value;
 	const date = new Date();
 	resultElement.textContent = formatDate(date, format);
 	editor.setValue(generateCode(format), 1);
-});
+};
+
+dateFormatInput.addEventListener("input", update);
+update(); // Initial update
