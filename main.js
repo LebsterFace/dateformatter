@@ -1,20 +1,22 @@
 const resultElement = document.getElementById("result");
 const dateFormatInput = document.getElementById("dateformat");
 
+let locale = "en-US";
+
 const ordinal = n => n + {
 	one: "st",
 	two: "nd",
 	few: "rd",
 	other: "th"
-}[new Intl.PluralRules("en-US", { type: "ordinal" }).select(n)];
+}[new Intl.PluralRules(locale, { type: "ordinal" }).select(n)];
 
 // FIXME: timezone & quarter
 const getterFunctions = {
 	// d		14			The day of the month. A single d will use 1 for January 1st.
-	"d": date => date.toLocaleString("en-US", { day: "numeric" }),
+	"d": date => date.toLocaleString(locale, { day: "numeric" }),
 	// dd		14			The day of the month. A double d will use 01 for January 1st.
-	"dd": date => date.toLocaleString("en-US", { day: "2-digit" }),
-	"ddd": date => ordinal(date.toLocaleString("en-US", { day: "numeric" })),
+	"dd": date => date.toLocaleString(locale, { day: "2-digit" }),
+	"ddd": date => ordinal(date.toLocaleString(locale, { day: "numeric" })),
 	// F		2			(numeric) The day of week in the month.
 	"F": orig => {
 		const date = new Date(orig.valueOf());
@@ -30,41 +32,41 @@ const getterFunctions = {
 		return count;
 	},
 	// E		Tue			The abbreviation for the day of the week
-	"E": date => date.toLocaleString("en-US", { weekday: "short" }),
+	"E": date => date.toLocaleString(locale, { weekday: "short" }),
 	// EEEE		Tuesday		The wide name of the day of the week
-	"EEEE": date => date.toLocaleString("en-US", { weekday: "long" }),
+	"EEEE": date => date.toLocaleString(locale, { weekday: "long" }),
 	// EEEEE	T			The narrow day of week
-	"EEEEE": date => date.toLocaleString("en-US", { weekday: "narrow" }),
+	"EEEEE": date => date.toLocaleString(locale, { weekday: "narrow" }),
 	// EEEEEE	Tu			The short day of week
-	"EEEEEE": date => date.toLocaleString("en-US", { weekday: "long" }).slice(0, 2),
+	"EEEEEE": date => date.toLocaleString(locale, { weekday: "long" }).slice(0, 2),
 
 	// y	2008		Year, no padding
 	"y": date => date.getFullYear(),
 	// yy	08			Year, two digits (padding with a zero if necessary)
-	"yy": date => date.toLocaleString("en-US", { year: "2-digit" }),
+	"yy": date => date.toLocaleString(locale, { year: "2-digit" }),
 	// yyyy	2008		Year, minimum of four digits (padding with zeros if necessary)
-	"yyyy": date => date.toLocaleString("en-US", { year: "numeric" }).padStart(4, "0"),
-	"yyy": date => date.toLocaleString("en-US", { year: "numeric" }).padStart(4, "0"),
+	"yyyy": date => date.toLocaleString(locale, { year: "numeric" }).padStart(4, "0"),
+	"yyy": date => date.toLocaleString(locale, { year: "numeric" }).padStart(4, "0"),
 
 	// M		12			The numeric month of the year. A single M will use "1" for January.
-	"M": date => date.toLocaleString("en-US", { month: "numeric" }),
+	"M": date => date.toLocaleString(locale, { month: "numeric" }),
 	// MM		12			The numeric month of the year. A double M will use "01" for January.
-	"MM": date => date.toLocaleString("en-US", { month: "2-digit" }),
+	"MM": date => date.toLocaleString(locale, { month: "2-digit" }),
 	// MMM		Dec			The shorthand name of the month
-	"MMM": date => date.toLocaleString("en-US", { month: "short" }),
+	"MMM": date => date.toLocaleString(locale, { month: "short" }),
 	// MMMM		December	Full name of the month
-	"MMMM": date => date.toLocaleString("en-US", { month: "long" }),
+	"MMMM": date => date.toLocaleString(locale, { month: "long" }),
 	// MMMMM	D			Narrow name of the month
-	"MMMMM": date => date.toLocaleString("en-US", { month: "narrow" }),
+	"MMMMM": date => date.toLocaleString(locale, { month: "narrow" }),
 
 	// h		4		The 12-hour hour.
-	"h": date => date.toLocaleString("en-US", { hour12: true, hour: "numeric" }).slice(0, -3),
+	"h": date => date.toLocaleString(locale, { hour12: true, hour: "numeric" }).slice(0, -3),
 	// hh		04		The 12-hour hour padding with a zero if there is only 1 digit
-	"hh": date => date.toLocaleString("en-US", { hour12: true, hour: "2-digit" }).slice(0, -3),
+	"hh": date => date.toLocaleString(locale, { hour12: true, hour: "2-digit" }).slice(0, -3),
 	// H		16		The 24-hour hour.
-	"H": date => date.toLocaleString("en-US", { hour12: false, hour: "numeric" }),
+	"H": date => date.toLocaleString(locale, { hour12: false, hour: "numeric" }),
 	// HH		16		The 24-hour hour padding with a zero if there is only 1 digit.
-	"HH": date => date.toLocaleString("en-US", { hour12: false, hour: "2-digit" }),
+	"HH": date => date.toLocaleString(locale, { hour12: false, hour: "2-digit" }),
 	// a		PM		AM / PM for 12-hour time formats
 	"a": date => date.getHours() < 12 ? "AM" : "PM",
 
