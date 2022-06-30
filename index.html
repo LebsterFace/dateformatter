@@ -1,3 +1,5 @@
+<!-- Website designed by Samuel Salinsky aka "Lebster" -->
+<!-- Date created: 30th June 2022 -->
 <!DOCTYPE html>
 <html lang="en">
 	<head>
@@ -8,10 +10,24 @@
 		<title>Date Formatter</title>
 	</head>
 	<body>
-		<h1 id="result">Loading...</h1>
-		<input spellcheck="false" autocorrect="false" type="text" id="dateformat" placeholder="Date format..." value="EEEE MMMM ddd, Y (hh:mma)">
-		<div id="editor">Loading...</div>
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.7.1/ace.js" integrity="sha512-FKkEO4RZEQjFmU1hoUYdx6HJLdpHpNzgWspgnQCxx7OOkDVz4kiGJxR97yWc5bzjwcCpJC/CRCiQzuoGYAChhQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-		<script src="main.js"></script>
+		<div id="left">
+			<h1 id="result">Loading...</h1>
+			<input spellcheck="false" autocorrect="false" type="text" id="dateformat" placeholder="Date format..." value="EEEE MMMM ddd, Y (hh:mma)">
+			<div id="editor">Loading...</div>
+		</div>
+		<div id="right">
+			<table>
+				<thead>
+					<tr>
+						<th>Pattern</th>
+						<th>Example</th>
+						<!-- <th>Description</th> -->
+					</tr>
+				</thead>
+				<tbody></tbody>
+			</table>
+		</div>
 	</body>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.7.1/ace.js" integrity="sha512-FKkEO4RZEQjFmU1hoUYdx6HJLdpHpNzgWspgnQCxx7OOkDVz4kiGJxR97yWc5bzjwcCpJC/CRCiQzuoGYAChhQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+	<script src="main.js"></script>
 </html>

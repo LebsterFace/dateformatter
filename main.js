@@ -1,6 +1,7 @@
 const resultElement = document.getElementById("result");
 const dateFormatInput = document.getElementById("dateformat");
 
+/** @type {Record<string, (date: Date) => string | number>} */
 const getterFunctions = {
 	d: date => date.getDate(),
 	dd: date => date.toLocaleString("en-US", { day: "2-digit" }),
@@ -40,6 +41,26 @@ const getterFunctions = {
 	SSS: date => date.getMilliseconds(),
 };
 
+const EXAMPLE_DATE = new Date("21 Oct 2015 4:29 PM");
+
+const exampleFormats = Object.entries(getterFunctions)
+	.map(/** @returns {[string, number | string]} */ ([key, value]) => [key, value(EXAMPLE_DATE)])
+
+const create = (/** @type {string} */ tagName, object = {}, children = []) => {
+	const element = document.createElement(tagName);
+	Object.assign(element, object)
+	element.append(...children);
+	return element;
+};
+
+const tbody = document.querySelector("tbody");
+for (const [pattern, example] of exampleFormats) {
+	tbody.append(create("tr", {}, [
+		create("td", { textContent: pattern }),
+		create("td", { textContent: example })
+	]));
+}
+
 getterFunctions.EE = getterFunctions.E;
 getterFunctions.EEE = getterFunctions.E;
 
@@ -51,6 +72,7 @@ for (const func of ["d", "dd", "ddd", "E", "EE", "EEE", "EEEE", "EEEEE", "EEEEEE
 	getterFunctions[func.toUpperCase()] = original;
 }
 
+//#region Codegen
 const getPartCode = part => {
 	const string = getterFunctions[part].toString();
 
@@ -178,3 +200,4 @@ const update = () => {
 
 dateFormatInput.addEventListener("input", update);
 update(); // Initial update
+//#endregion
